@@ -83,15 +83,43 @@ class LoginToHomepage(LegecloTransaction):
         # 之后等待进入主页，逻辑交给 assert_end
 
     def execute(self) -> None:
-        can_start = self.assert_start()
-        if not can_start:
-            # 修复逻辑，暂时不知道怎么写，可能就只有等待，如果等待之后再不成功就 fatal
-            pass
-        self.operate()
-        can_end = self.assert_end()
-        if not can_end:
-            # 修复逻辑，暂时不知道怎么写
-            pass
+        try:
+            can_start = self.assert_start()
+            if not can_start:
+                # 修复逻辑，暂时不知道怎么写，可能就只有等待，如果等待之后再不成功就 fatal
+                pass
+            self.operate()
+            can_end = self.assert_end()
+            if not can_end:
+                # 理论上这里就是没登录进游戏
+                # 可能的情况是，登录卡太久超时了，或者中间哪里点快了，或者其他情况（id 都是数字，一定合法）
+                # 能处理的激素登录卡太久超时，我能再等待一会
+                # 点快了都很难处理，只能通过代码逻辑保证不会出现这种情况，出现之后我是不知道卡在哪里的，是没有简单统一的办法可以回到登录界面的
+                # 所以这里逻辑上只处理超时
+                time.sleep(30)
+                can_end = self.assert_end()
+                if not can_end:
+                    logger.warning(f"Transaction {self.TXN_NAME} failed to recover")
+                    raise TransactionRecoverError("Transaction failed to recover")
+        except TransactionRecoverError:
+            logger.warning(f"Transaction {self.TXN_NAME} failed to recover, rebooting...")
+            self.ctl.reboot_legeclo()  # 重启游戏
+            # 之后我无法确定之前是起名成功还是失败，所以无法知道会直接进主页还是跳起名框
+            # 只要能进主页，就会直接继续新手教程，不用考虑换日弹公告的事情，因为新手教程还没跳过
+            time.sleep(3)
+            # 点击 GAME START
+            self.ctl.touch_pos(pos.GAME_START)
+            if self.assert_end():  # 直接就进去了，
+                logger.success(f"Transaction {self.TXN_NAME} reboot success")
+                return
+
+            # 不能直接进去，说明弹了起名框，那就继续走一遍流程
+            # 流程里会再点一次 GAME START，对执行没有影响
+            self.operate()
+            can_end = self.assert_end()
+            if not can_end:
+                logger.error(f"Transaction {self.TXN_NAME} failed to reboot")
+                raise TransactionRebootError
 
 
 if __name__ == "__main__":

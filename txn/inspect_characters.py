@@ -259,21 +259,52 @@ class InspectCharacters(LegecloTransaction):
         return self.assert_end()
 
     def execute(self) -> bool:
-        can_start = self.assert_start()
-        if not can_start:
-            # 修复逻辑，暂时不知道怎么写，可能就只有等待，如果等待之后再不成功就 fatal
-            pass
-        marathon_success = self.operate()
-        can_end = self.assert_end()
-        if not can_end:
-            # 修复逻辑
-            # 通过确保回到主页来跳过这一步
-            can_recover = self.recover_end()
-            if not can_recover:
-                logger.error(f"Transaction {self.TXN_NAME} recover failed")
-                raise ValueError(f"Transaction {self.TXN_NAME} failed")
+        try:
+            can_start = self.assert_start()
+            if not can_start:
+                # 修复逻辑，暂时不知道怎么写，可能就只有等待，如果等待之后再不成功就 fatal
+                pass
+            marathon_success = self.operate()
+            can_end = self.assert_end()
+            if not can_end:
+                # 修复逻辑
+                # 通过确保回到主页来跳过这一步
+                can_recover = self.recover_end()
+                if not can_recover:
+                    logger.warning(f"Transaction {self.TXN_NAME} failed to recover")
+                    raise ValueError(f"Transaction {self.TXN_NAME} failed to recover")
 
-        return marathon_success
+            return marathon_success
+
+        except TransactionRecoverError:
+            logger.warning(f"Transaction {self.TXN_NAME} failed to recover, rebooting...")
+            self.ctl.reboot_legeclo()  # 重启游戏
+            time.sleep(3)
+            # 点击 GAME START
+            self.ctl.touch_pos(pos.GAME_START)
+            # 一定能直接登录进去
+            # 如果换日了就会有公告
+            self.ctl.loop_find_template_no_exception(
+                template=images.HOMEPAGE_FREE,  # 有公告的时候会不是高光，所以需要降低阈值
+                interval=1,
+                timeout=60,
+                threshold=0.6,
+            )  # 动态判断是否登录进主页
+            # 不管有没有公告，都当有公告处理
+            self.ctl.touch_pos_multiple(
+                pos=pos.HOMEPAGE_SAFE,
+                interval=0.2,
+                times=200,
+            )
+            # 操作就不保证再执行，只要在主页就行
+            # 反正 recover 逻辑里都没保证操作再执行，理论上这里再执行也没问题
+            # 是否刷取成功就当 False
+            if self.assert_end():
+                logger.success(f"Transaction {self.TXN_NAME} reboot success")
+                return False
+
+            logger.error(f"Transaction {self.TXN_NAME} failed to reboot")
+            raise TransactionRebootError
 
 
 if __name__ == "__main__":

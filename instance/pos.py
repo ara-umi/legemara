@@ -3,10 +3,20 @@
 
 from models.pos import DevPos
 
+CLOSE_ALL_APPS = DevPos(
+    x=1140,
+    y=80,
+    description="蓝蝶模拟器：多任务视图：全部清除"
+)
 GAME_START = DevPos(
     x=802,
     y=789,
     description="GAME START"
+)
+Name_INPUT_CANCEL = DevPos(
+    x=700,
+    y=600,
+    description="输入玩家名取消"
 )
 NAME_INPUT = DevPos(
     x=808,

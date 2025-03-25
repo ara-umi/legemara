@@ -58,16 +58,72 @@ class DeleteAccount(LegecloTransaction):
         self.ctl.touch_pos(pos.DELETE_SUCCESS_OK)
         # 之后会加载进登录界面，逻辑交给 assert_end
 
+    def recover_end(self) -> bool:
+        time.sleep(10)
+        logger.warning(f"Recover {self.TXN_NAME}")
+        self.ctl.touch_pos_multiple(
+            pos=pos.HOMEPAGE_HOMEPAGE,
+            times=10,
+            interval=1,
+        )
+        return self.assert_end()
+
     def execute(self) -> None:
-        can_start = self.assert_start()
-        if not can_start:
-            # 修复逻辑，暂时不知道怎么写，可能就只有等待，如果等待之后再不成功就 fatal
-            pass
-        self.operate()
-        can_end = self.assert_end()
-        if not can_end:
-            # 修复逻辑，暂时不知道怎么写
-            pass
+        try:
+            can_start = self.assert_start()
+            if not can_start:
+                # 修复逻辑，暂时不知道怎么写，可能就只有等待，如果等待之后再不成功就 fatal
+                pass
+            self.operate()
+            can_end = self.assert_end()
+            if not can_end:
+                # 修复逻辑，很麻烦，因为可能删除成功可能没成功
+                # 比如到了删除账号成功点 OK 这一步就已经是删除成功了，其他位置点击是没反应的
+                # 我建议直接抛出异常，让重启逻辑来判断
+                raise TransactionRecoverError(f"Transaction {self.TXN_NAME} failed to recover")
+        except TransactionRecoverError:
+            logger.warning(f"Transaction {self.TXN_NAME} failed to recover, rebooting...")
+            self.ctl.reboot_legeclo()  # 重启游戏
+            time.sleep(3)
+            # 点击 GAME START
+            self.ctl.touch_pos(pos.GAME_START)
+            # 能不能登录进去就要靠检测是否弹出了起名的窗口
+            if self.ctl.loop_find_template_no_exception(
+                    template=images.NAME_RULE,
+                    interval=1,
+                    timeout=60,
+                    threshold=0.9,
+            ):
+                # 这里说明已经删除成功了
+                # 取消起名窗口
+                self.ctl.touch_pos(pos.Name_INPUT_CANCEL)
+                time.sleep(3)
+                # 这里就不用 assert_end 了，没影响，哪怕不取消起名，下一个 loop 也不会有影响
+                logger.success(f"Transaction {self.TXN_NAME} reboot success")
+                return
+
+            # 如果能登录进去，重新删一遍
+            # 如果换日了就会有公告
+            self.ctl.loop_find_template_no_exception(
+                template=images.HOMEPAGE_FREE,  # 有公告的时候会不是高光，所以需要降低阈值
+                interval=1,
+                timeout=60,
+                threshold=0.6,
+            )  # 动态判断是否登录进主页
+            # 不管有没有公告，都当有公告处理
+            self.ctl.touch_pos_multiple(
+                pos=pos.HOMEPAGE_SAFE,
+                interval=0.2,
+                times=200,
+            )
+            # 从头删一遍
+            self.operate()
+            if self.assert_end():
+                logger.success(f"Transaction {self.TXN_NAME} reboot success")
+                return
+
+            logger.error(f"Transaction {self.TXN_NAME} failed to reboot")
+            raise TransactionRebootError
 
 
 if __name__ == "__main__":

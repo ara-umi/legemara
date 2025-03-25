@@ -15,7 +15,11 @@ class TemplateNotFound(Exception):
         super().__init__(self.message)
 
 
-class TransactionAssertStartError(Exception):
+class TransactionRecoverError(Exception):
+    pass
+
+
+class TransactionRebootError(Exception):
     pass
 
 

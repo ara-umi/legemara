@@ -11,6 +11,10 @@ from instance import pos
 from models.pos import DevPos
 from txn.base import LegecloTransaction
 
+"""
+已经变成面条代码了，就放这里当摆设吧
+"""
+
 
 class Gacha(LegecloTransaction):
     """

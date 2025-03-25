@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import time
+
+from loguru import logger
+
 from controller.android import AndroidController
+from instance import images
+from instance import pos
 from settings import Settings
 
 """
@@ -35,11 +41,51 @@ class LegecloController(AndroidController):
     用于写一些封装好的专用于传奇四叶草的方法
     如你所见，我什么也没写，相当于冗余设计了
     """
+
     def __init__(
             self,
             settings: Settings,
     ):
         super().__init__(settings=settings)
+
+    def close_all_apps(self):
+        """
+        切出多任务试图并清楚全部 app（相当于把传草关了，单独要找传奇四叶草在哪里还挺麻烦的，反正不会开其他应用）
+        仅用于蓝叠模拟器
+        不同模拟器用的安卓版本可能不一样
+        我都不能保证 keyevent 能实现出一样的效果，就更别提保证 UI 一致了
+        """
+        self.app_switch()
+        time.sleep(2)
+        self.touch_pos(pos.CLOSE_ALL_APPS)  # 清理完会自动退回桌面
+        time.sleep(1)
+        logger.success("Close all apps")
+
+    def start_legeclo(self):
+        """
+        从桌面启动传奇四叶草
+        找不到会直接报错，超时启动失败也会报错
+        """
+        _pos = self.loop_find_template(
+            template=images.LEGECLO_APP_ICON,
+            timeout=0,
+        )
+        self.touch(_pos)
+        time.sleep(10)
+        self.loop_find_template(
+            template=images.LOGIN_PAGE_SYMBOL,
+            interval=3,
+            timeout=120,
+        )
+        logger.success("Start Legeclo")
+
+    def reboot_legeclo(self):
+        """
+        重启传奇四叶草
+        """
+        self.close_all_apps()
+        time.sleep(3)
+        self.start_legeclo()
 
 
 if __name__ == "__main__":

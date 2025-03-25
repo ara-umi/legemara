@@ -133,18 +133,54 @@ class SkipBeginnerGuide(LegecloTransaction):
         return self.assert_end()
 
     def execute(self) -> None:
-        can_start = self.assert_start()
-        if not can_start:
-            # 修复逻辑，暂时不知道怎么写，可能就只有等待，如果等待之后再不成功就 fatal
-            pass
-        self.operate()
-        can_end = self.assert_end()
-        if not can_end:
-            # 再点一次
-            can_recover = self.recover_end()
-            if not can_recover:
-                logger.error(f"Transaction {self.TXN_NAME} recover failed")
-                raise ValueError(f"Transaction {self.TXN_NAME} failed")
+        try:
+            can_start = self.assert_start()
+            if not can_start:
+                # 修复逻辑，暂时不知道怎么写，可能就只有等待，如果等待之后再不成功就 fatal
+                pass
+            self.operate()
+            can_end = self.assert_end()
+            if not can_end:
+                # 再点一次
+                can_recover = self.recover_end()
+                if not can_recover:
+                    logger.warning(f"Transaction {self.TXN_NAME} failed to recover")
+                    raise TransactionRecoverError("Transaction failed to recover")
+        except TransactionRecoverError:
+            logger.warning(f"Transaction {self.TXN_NAME} failed to recover, rebooting...")
+            self.ctl.reboot_legeclo()  # 重启游戏
+            time.sleep(3)
+            # 点击 GAME START
+            self.ctl.touch_pos(pos.GAME_START)
+            # 一定能直接登录进去，登录进去一定在主页
+            # 它是可能直接算你做完了新手教程的
+            # 正常情况它会衔接在你之前退出的位置
+            # 比如你抽卡一半退出，登进来就让你点角色去强化
+            # 但如果你强化已经完成，在米迦勒说话的时候退出了，登进来就算做完了新手教程，这时候就弹公告
+            self.ctl.loop_find_template_no_exception(
+                template=images.HOMEPAGE_FREE,  # 有公告的时候会不是高光，如果卡在新手教程这里也会有别的东西，所以阈值调低，看后续需不需要换个模板
+                interval=1,
+                timeout=60,
+                threshold=0.6,
+            )  # 动态判断是否登录进主页
+            # 这里先假设已经算你做完新手教程，处理公告，如果还卡在新手教程，这里点击也不会有任何影响
+            self.ctl.touch_pos_multiple(
+                pos=pos.HOMEPAGE_SAFE,
+                interval=0.2,
+                times=200,
+            )
+            if self.assert_end():
+                logger.success(f"Transaction {self.TXN_NAME} reboot success")
+                return
+
+            # 到这里就说明还卡在新手教程，再点一遍
+            self.operate()
+            if self.assert_end():
+                logger.success(f"Transaction {self.TXN_NAME} reboot success")
+                return
+
+            logger.error(f"Transaction {self.TXN_NAME} failed to reboot")
+            raise TransactionRebootError
 
 
 if __name__ == "__main__":

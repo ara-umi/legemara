@@ -194,6 +194,19 @@ class AndroidController(object):
             logger.error(f"Unexpected error while taking screenshot: {e}")
             return False
 
+    def home(self):
+        """
+        回到桌面
+        """
+        self._device.keyevent("HOME")
+        logger.info("Key event home")
+
+    def app_switch(self):
+        """
+        打开多任务视图
+        """
+        self.device.keyevent("APP_SWITCH")
+
 
 if __name__ == "__main__":
     pass

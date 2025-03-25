@@ -78,23 +78,48 @@ class SkipStage(LegecloTransaction):
         return self.assert_end()
 
     def execute(self) -> None:
-        can_start = self.assert_start()
-        if not can_start:
-            # 修复逻辑，暂时不知道怎么写，可能就只有等待，如果等待之后再不成功就 fatal
-            pass
-        self.operate()
-        can_end = self.assert_end()
-        if not can_end:
-            # 修复逻辑
-            # 整个过程都可以看得左下方的主页按钮，除非非常特殊的情况
-            # 不如卡在了白屏加载过程中，或者因为网络原因所有的按钮都失效
-            # 这里的修复逻辑就是，只要确保回了主页就行，就当跳过这一步，对后续也没有影响
-            # 不要考虑怎么保证一定跳过主线，意义很小，操作难度很高
-            can_recover = self.recover_end()
-            if not can_recover:
-                logger.error(f"Transaction {self.TXN_NAME} recover failed")
-                # 这样就只能报错了，异常我还没写
-                raise ValueError(f"Transaction {self.TXN_NAME} failed")
+        try:
+            can_start = self.assert_start()
+            if not can_start:
+                # 修复逻辑，暂时不知道怎么写，可能就只有等待，如果等待之后再不成功就 fatal
+                pass
+            self.operate()
+            can_end = self.assert_end()
+            if not can_end:
+                # 整个过程都可以看得左下方的主页按钮
+                # 只要确保回了主页就行，就当跳过这一步，对后续也没有影响
+                # 我不敢再点一遍，因为如果是已经跳过了的情况，会点到很奇怪位置比如实力测试，产生不可预料的后果
+                can_recover = self.recover_end()
+                if not can_recover:
+                    logger.warning(f"Transaction {self.TXN_NAME} failed to recover")
+                    raise TransactionRecoverError(f"Transaction {self.TXN_NAME} failed to recover")
+        except TransactionRecoverError:
+            logger.warning(f"Transaction {self.TXN_NAME} failed to recover, rebooting...")
+            self.ctl.reboot_legeclo()  # 重启游戏
+            time.sleep(3)
+            # 点击 GAME START
+            self.ctl.touch_pos(pos.GAME_START)
+            # 一定能直接登录进去
+            # 如果换日了就会有公告
+            self.ctl.loop_find_template_no_exception(
+                template=images.HOMEPAGE_FREE,  # 有公告的时候会不是高光，所以需要降低阈值
+                interval=1,
+                timeout=60,
+                threshold=0.6,
+            )  # 动态判断是否登录进主页
+            # 不管有没有公告，都当有公告处理
+            self.ctl.touch_pos_multiple(
+                pos=pos.HOMEPAGE_SAFE,
+                interval=0.2,
+                times=200,
+            )
+            # 操作就不保证再执行，只要在主页就行
+            if self.assert_end():
+                logger.success(f"Transaction {self.TXN_NAME} reboot success")
+                return
+
+            logger.error(f"Transaction {self.TXN_NAME} failed to reboot")
+            raise TransactionRebootError
 
 
 if __name__ == "__main__":

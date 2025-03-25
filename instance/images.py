@@ -3,8 +3,8 @@
 
 from models.template import DevTemplate
 
-LEGECLO_ICON = DevTemplate(
-    path="images/legeclo_icon.png",
+LEGECLO_APP_ICON = DevTemplate(
+    path="images/legeclo_app_icon.png",
     description="传奇四叶草桌面图标",
 )
 VISITOR_LOGIN = DevTemplate(
@@ -43,9 +43,11 @@ BEGINNER_10X_OVER_OK = DevTemplate(
     path="images/beginner_10x_over_ok.png",
     description="新手10连结束确认OK，让你去强化",
 )
+# 如果要弹公告它会没有高光，需要降低阈值
+# 检测到它不一定说明停留在主页，但一定进了游戏
 HOMEPAGE_FREE = DevTemplate(
     path="images/homepage_free.png",
-    description="主页下方栏目，能检测到这个就说明第一是在主页，可以自由点击，要求精度很高",
+    description="主页下方栏目，用来判断是否进入了游戏且可以操",
 )
 JEANNE_SKIRT = DevTemplate(
     path="images/jeanne_skirt.png",

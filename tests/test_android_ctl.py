@@ -22,8 +22,12 @@ def test_get_display_info(android_controller):
     print(result)
 
 
-def test_debug_position(android_controller):
-    android_controller.debug_position()
+def test_home(android_controller):
+    android_controller.home()
+
+
+def test_app_switch(android_controller):
+    android_controller.app_switch()
 
 
 if __name__ == "__main__":
