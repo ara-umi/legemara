@@ -51,9 +51,10 @@ inspect_characters_txn = InspectCharacters(
         characters.红神,
         characters.蓝神,
         characters.绿神,
-        characters.阿波罗,
         characters.飞索,
         characters.霍恩海姆,
+        characters.雪兔,
+        characters.新阿波罗,
     ],
     required_sub_char=[
         characters.联动乌列尔,
@@ -66,8 +67,7 @@ inspect_characters_txn = InspectCharacters(
     must_have_sub_char=[
         characters.联动乌列尔,
     ],
-    # 目前评分标准是按满分 100 来算，联动限定 100 分，重要常驻 100 分，其他低于 100
-    target_score=320,
+    target_score=400,
 )
 delete_account_txn = DeleteAccount(controller)
 
@@ -106,7 +106,7 @@ def marathon():
 
         success = inspect_characters_txn.execute()
         if success:  # 刷取成功的逻辑
-            pass
+            return
 
         delete_account_txn.execute()
         end_time = time.time()

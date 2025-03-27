@@ -45,6 +45,15 @@ class GachaDC2(LegecloTransaction):
             return False
 
     def operate(self) -> None:
+        """
+        逻辑上要注意不能在弹出断连或者换日时一直卡在抽卡循环里
+        不可能时时刻刻检测有没有弹窗，最好办法就是把规定个抽卡次数上限，自动退出
+        对于免费转蛋还好办，因为是否继续抽的逻辑是检测 *有继续抽的按钮*
+        这个按钮呗弹窗挡住，就会自动退出
+        但对于用免费钻抽的池子，是否继续抽的逻辑是检测 *没用跳出魔晶石不足*
+        有弹窗遮挡就会死循环
+        所以规定了个抽卡次数上限来避免这种情况
+        """
         # 用于 skip 加速
         skip_click_times: int = 80
         skip_click_times_decrease: int = 10
@@ -73,8 +82,8 @@ class GachaDC2(LegecloTransaction):
             times=max(skip_click_times, skip_click_times_min),
         )
         skip_click_times -= skip_click_times_decrease  # 抽一次十连扣一下
-        # 循环抽卡至力竭
-        while True:
+        # 循环抽卡，设置个最大循环次数避免死循环
+        for _ in range(10):
             # 白嫖十连如果不能抽了就不会有抽 10 次的按钮
             can_gacha, _pos = self.ctl.loop_find_template_no_exception(
                 template=images.GACHA_RESULT_10X,
@@ -146,8 +155,8 @@ class GachaDC2(LegecloTransaction):
             times=max(skip_click_times, skip_click_times_min),
         )
         skip_click_times -= skip_click_times_decrease
-        # 循环抽卡至力竭
-        while True:
+        # 循环抽卡，设置个最大循环次数避免死循环
+        for _ in range(10):
             # 点击继续抽 10 次
             self.ctl.touch_pos(pos.GACHA_RESULT_10X)
             time.sleep(2)

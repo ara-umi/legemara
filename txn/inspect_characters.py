@@ -16,9 +16,8 @@ from txn.base import LegecloTransaction
 
 class InspectCharacters(LegecloTransaction):
     """
-    从能自由点击的主页开始，进入角色界面，检测又哪些角色
-    详细的逻辑没做，而且也只做了主战的检测，到时候补逻辑
-    到时候回又很多传参，包括文件存储的位置，停止的异常，需要的角色，角色评分系统等
+    从能自由点击的主页开始，进入角色界面，检测有哪些角色
+    评分大于等于 target_score 算刷取成功
     """
     TXN_NAME = "InspectCharacters"
 

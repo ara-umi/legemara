@@ -38,13 +38,13 @@ from models.template import CharacterPortrait
 女仆 = CharacterPortrait(
     path="images/portrait/女仆.png",
     character_name="赫尔米",
-    score=60,
+    score=34,
     description="赫尔米半身照",
 )
 新米 = CharacterPortrait(
     path="images/portrait/新米.png",
     character_name="新米",
-    score=80,
+    score=50,
     description="新米半身照",
 )
 枪南丁 = CharacterPortrait(
@@ -56,7 +56,7 @@ from models.template import CharacterPortrait
 红神 = CharacterPortrait(
     path="images/portrait/红神.png",
     character_name="红神",
-    score=70,
+    score=50,
     description="红神半身照",
 )
 蓝神 = CharacterPortrait(
@@ -68,27 +68,31 @@ from models.template import CharacterPortrait
 绿神 = CharacterPortrait(
     path="images/portrait/绿神.png",
     character_name="绿神",
-    score=60,
+    score=50,
     description="绿神半身照",
-)
-
-阿波罗 = CharacterPortrait(
-    path="images/portrait/阿波罗.png",
-    character_name="阿波罗",
-    score=70,
-    description="阿波罗半身照",
 )
 飞索 = CharacterPortrait(
     path="images/portrait/飞索.png",
     character_name="飞索",
-    score=70,
+    score=34,
     description="飞索半身照",
 )
 霍恩海姆 = CharacterPortrait(
     path="images/portrait/霍恩海姆.png",
     character_name="霍恩海姆",
-    score=50,
+    score=34,
     description="霍恩海姆半身照",
+)
+新阿波罗 = CharacterPortrait(
+    path="images/portrait/新阿波罗.png",
+    character_name="新阿波罗",
+    score=34,
+    description="新阿波罗半身照",
+)
+雪兔 = CharacterPortrait(
+    path="images/portrait/雪兔.png",
+    character_name="雪兔",
+    score=34,
 )
 
 if __name__ == "__main__":

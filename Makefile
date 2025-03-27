@@ -1,4 +1,4 @@
-env_export:
-    conda env export --no-builds | grep -v '^prefix:' > environment.yaml
+start:
+    uv run python main.py
 
-.PHONY: env_export
+.PHONY: start

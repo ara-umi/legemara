@@ -6,7 +6,7 @@ from models.pos import DevPos
 CLOSE_ALL_APPS = DevPos(
     x=1140,
     y=80,
-    description="蓝蝶模拟器：多任务视图：全部清除"
+    description="蓝叠模拟器：多任务视图：全部清除"
 )
 GAME_START = DevPos(
     x=802,
