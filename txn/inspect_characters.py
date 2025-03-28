@@ -118,7 +118,7 @@ class InspectCharacters(LegecloTransaction):
             find, _ = self.ctl.loop_find_template_no_exception(
                 template=char,
                 timeout=0,
-                interval=1,
+                interval=0,
             )
             if not find:
                 logger.warning(f"Character {char.name} not found")
@@ -130,7 +130,7 @@ class InspectCharacters(LegecloTransaction):
                 find, _ = self.ctl.loop_find_template_no_exception(
                     template=char,
                     timeout=0,
-                    interval=1,
+                    interval=0,
                 )
                 if find:
                     logger.success(f"Character {char.name} found, score +{char.score}")
@@ -138,7 +138,7 @@ class InspectCharacters(LegecloTransaction):
 
         # 截图保存
         if not filename:
-            dt = datetime.datetime.now().strftime("%m%d_%H_%M")
+            dt = datetime.datetime.now().strftime("%m%d_%H_%M_%S")
             filename = f"{dt}_main.png"
         save_path = f"{self.save_dir}/{filename}"
         self.ctl.take_screenshot(save_path=save_path)
@@ -186,7 +186,7 @@ class InspectCharacters(LegecloTransaction):
             find, _ = self.ctl.loop_find_template_no_exception(
                 template=char,
                 timeout=0,
-                interval=1,
+                interval=0,
             )
             if not find:
                 logger.warning(f"Character {char.name} not found")
@@ -198,7 +198,7 @@ class InspectCharacters(LegecloTransaction):
                 find, _ = self.ctl.loop_find_template_no_exception(
                     template=char,
                     timeout=0,
-                    interval=1,
+                    interval=0,
                 )
                 if find:
                     logger.success(f"Character {char.name} found, score +{char.score}")
@@ -206,7 +206,7 @@ class InspectCharacters(LegecloTransaction):
 
         # 截图保存
         if not filename:
-            dt = datetime.datetime.now().strftime("%m%d_%H_%M")
+            dt = datetime.datetime.now().strftime("%m%d_%H_%M_%S")
             filename = f"{dt}_sup.png"
         save_path = f"{self.save_dir}/{filename}"
         self.ctl.take_screenshot(save_path=save_path)
@@ -226,7 +226,7 @@ class InspectCharacters(LegecloTransaction):
         time.sleep(3)
 
         # 计算分数
-        dt = datetime.datetime.now().strftime("%m%d_%H_%M")
+        dt = datetime.datetime.now().strftime("%m%d_%H_%M_%S")
         score_main = self._inspect_main(filename=f"{dt}_main.png")
         score_sub = self._inspect_sub(filename=f"{dt}_sub.png")
         score = score_main + score_sub

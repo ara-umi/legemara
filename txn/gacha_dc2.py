@@ -117,8 +117,9 @@ class GachaDC2(LegecloTransaction):
         self.ctl.touch_pos(pos.HOMEPAGE_GACHA)
         time.sleep(3)  # 前面有点击过，这里就可以快点
 
-        # 联动池子在第三个（至少目前在）
-        self.ctl.touch_pos(pos.GACHA_POOL3)
+        # 这里根据脚本的运行时间是需要修改的，要么就引入图片识别的逻辑
+        # 在抽完免费十连池子后，免费十连池会直接消失，联动池变为第一个
+        self.ctl.touch_pos(pos.GACHA_POOL1)
         time.sleep(3)
         # 点击选择精选角色
         self.ctl.touch_pos(pos.GACHA_SELECT_CHARACTERS)

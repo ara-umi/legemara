@@ -6,6 +6,7 @@ from typing import Optional
 
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from loguru import logger
 
 # .env 文件路径
 ROOT = os.path.dirname(__file__)
@@ -16,7 +17,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         # 从环境变量和 .env 文件加载
         env_file=(DOTENV,),
-        # # 环境变量前缀
+        # 环境变量前缀
         # env_prefix="",
         # 大小写敏感
         case_sensitive=True,
@@ -46,9 +47,14 @@ class Settings(BaseSettings):
 
 
 def get_settings() -> Settings:
-    return Settings()
+    settings = Settings()
+    logger.info(f"Settings: {settings.model_dump()}")
+    return settings
 
 
 if __name__ == "__main__":
     config = get_settings()
-    print(config.model_dump())
+    print("Initial:", config.model_dump())
+    os.environ["LOG_DIR"] = "/env/log"
+    config = get_settings()
+    print("After env override:", config.model_dump())

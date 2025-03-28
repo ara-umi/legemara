@@ -55,17 +55,23 @@ inspect_characters_txn = InspectCharacters(
         characters.霍恩海姆,
         characters.雪兔,
         characters.新阿波罗,
+        characters.山小,
+        characters.小贝,
+        characters.新贞,
+        characters.弗尔弗尔,
+        characters.剑大师,
     ],
     required_sub_char=[
         characters.联动乌列尔,
 
         characters.女仆,
+        characters.苏尔,
     ],
     must_have_main_char=[
-        characters.联动武尊,
+        # characters.联动武尊,
     ],
     must_have_sub_char=[
-        characters.联动乌列尔,
+        # characters.联动乌列尔,
     ],
     target_score=400,
 )

@@ -54,8 +54,9 @@ class LoginToHomepage(LegecloTransaction):
         self.ctl.loop_find_template_no_exception(
             template=images.NAME_RULE,
             interval=1,
-            timeout=60,  # 会直接跑加载条，可能花费很长时间
+            timeout=120,  # 会直接跑加载条，可能花费很长时间
         )  # 点击 GAME START 成功，哪怕找不到也不抛出异常，仅用于脚本提速
+        time.sleep(0.5)
         # 点击起名输入框
         self.ctl.touch_pos(pos.NAME_INPUT)
         time.sleep(1)
