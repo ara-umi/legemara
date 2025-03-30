@@ -57,7 +57,7 @@ class GachaDC2(LegecloTransaction):
         # 用于 skip 加速
         skip_click_times: int = 80
         skip_click_times_decrease: int = 10
-        skip_click_times_min: int = 40
+        skip_click_times_min: int = 50
 
         ##############################
         # 抽白嫖十连

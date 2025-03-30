@@ -11,6 +11,14 @@ VISITOR_LOGIN = DevTemplate(
     path="images/visitor_login.png",
     description="erolabs黑端访客登录",
 )
+NO_EROLABS_ACCOUNT = DevTemplate(
+    path="images/no_erolabs_account.png",
+    description="没有erolabs账号（下面的注册新账号）",
+)
+EROLABS_CAN_REGISTER = DevTemplate(
+    path="images/erolabs_can_register.png",
+    description="EROLABS注册新账号，粉色，表示通过了滑条验证",
+)
 LOGIN_PAGE_SYMBOL = DevTemplate(
     path="images/login_page_symbol.png",
     description="传草登录界面标识，即左上角游戏图标",
@@ -81,6 +89,8 @@ FILTER_BY_RARE_SSR_ACTIVE = DevTemplate(
     path="images/filter_by_rare_ssr_active.png",
     description="角色总览：显示条件：SSR：已勾选，需要很高阈值",
 )
+
+
 
 if __name__ == "__main__":
     pass

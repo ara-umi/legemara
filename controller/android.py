@@ -5,7 +5,7 @@ import logging
 import os
 import time
 from typing import Any, Optional
-
+import numpy as np
 import cv2
 from airtest.core.android import Android
 from airtest.core.api import G
@@ -206,6 +206,66 @@ class AndroidController(object):
         打开多任务视图
         """
         self.device.keyevent("APP_SWITCH")
+
+    def scroll(
+            self,
+            start_pos: DevPos,
+            end_pos: DevPos,
+            duration: float = 0.5,
+            steps: int = 10,
+    ):
+        """
+        从 start_pos 滑动到 end_pos（模拟滚轮滑动）
+        :param start_pos: 起始位置（DevPos 对象）
+        :param end_pos: 结束位置（DevPos 对象）
+        :param duration: 滑动持续时间（秒）
+        :param steps: 滑动步数（默认 5），滑得越长步数最好越多
+        """
+        # 适配分辨率
+        real_start = start_pos.adapt(self._display_info)
+        real_end = end_pos.adapt(self._display_info)
+
+        # 执行滑动
+        self._device.swipe(real_start, real_end, duration=duration, steps=steps)
+        logger.info(f"Scroll from {real_start} to {real_end}")
+
+    def capture_region(
+            self,
+            top_left: DevPos,
+            bottom_right: DevPos,
+    ) -> np.ndarray:
+        """
+        截取屏幕指定区域并返回二进制数据
+        :param top_left: 区域左上角坐标 (DevPos)
+        :param bottom_right: 区域右下角坐标 (DevPos)
+        :return: OpenCV 图像 (BGR 格式)
+        """
+        # 获取屏幕截图（numpy.ndarray）
+        screen = self._device.snapshot()
+        if screen is None:
+            raise ValueError("Screen capture failed")
+
+        # 转换坐标
+        tl_x, tl_y = top_left.adapt(self._display_info)
+        br_x, br_y = bottom_right.adapt(self._display_info)
+        logger.info(f"Capture region: {top_left} to {bottom_right}")
+
+        # 转换为 int
+        tl_x = int(tl_x)
+        tl_y = int(tl_y)
+        br_x = int(br_x)
+        br_y = int(br_y)
+
+        # 检查区域有效性
+        if tl_x >= br_x or tl_y >= br_y:
+            raise ValueError("Invalid region coordinates")
+
+        # 截取区域
+        region = screen[int(tl_y):int(br_y), int(tl_x):int(br_x)]
+        if region.size == 0:
+            raise ValueError("Empty region after crop")
+
+        return region
 
 
 if __name__ == "__main__":

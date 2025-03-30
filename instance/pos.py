@@ -8,6 +8,52 @@ CLOSE_ALL_APPS = DevPos(
     y=80,
     description="蓝叠模拟器：多任务视图：全部清除"
 )
+EROLABS_REGISTER_EMAIL_INPUT = DevPos(
+    x=800,
+    y=302,
+    description="注册邮箱输入框"
+)
+EROLABS_REGISTER_PASSWORD_INPUT = DevPos(
+    x=800,
+    y=387,
+    description="注册密码输入框"
+)
+EROLABS_REGISTER_PASSWORD_INPUT_AGAIN = DevPos(
+    x=800,
+    y=470,
+    description="注册密码二次输入框"
+)
+EROLABS_REGISTER_SAFE = DevPos(
+    x=1500,
+    y=800,
+    description="注册界面安全位置"
+)
+# 这里滚动是为了滚到底，看到全部的滑条验证码图案
+EROLABS_REGISTER_SCROLL_START = DevPos(
+    x=1500,
+    y=800,
+    description="注册界面开始滚动位置"
+)
+EROLABS_REGISTER_SCROLL_END = DevPos(
+    x=1500,
+    y=100,
+    description="注册界面结束滚动位置"
+)
+# 这里截图的时候不需要截到起始位置，减少 cv2 的计算难度
+# 起始位置一直都是贴着左侧边缘的，所以可以通过简单加一个偏移量来补正
+EROLABS_REGISTER_SLIDER_TOP_LEFT = DevPos(
+    x=735,
+    y=262,
+    description="注册滑条验证码左上角"
+)
+# 也不用截很全
+EROLABS_REGISTER_SLIDER_BOTTOM_RIGHT = DevPos(
+    x=954,
+    y=461,
+    description="注册滑条验证码右下角"
+)
+
+
 GAME_START = DevPos(
     x=802,
     y=789,

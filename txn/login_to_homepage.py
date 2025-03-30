@@ -5,18 +5,22 @@ import random
 import time
 
 from loguru import logger
-
+from models.pos import DevPos
 from exceptions import *
 from instance import images
 from instance import pos
 from txn.base import LegecloTransaction
-
+from utils.account import create_erolabs_account
+from utils.slider import process_erolabs_slider
 
 class LoginToHomepage(LegecloTransaction):
     """
     从登录页面开始，保证点击 GAME START 后直接跳转进入取名
         只要之前删除过账号一次，就可以永久跳过 erolabs 黑端登录界面
     之后执行取名、确认跳过新手教程，到达主页（主页会立刻跳出剩余的新手教程，除了指定按钮其他位置都非高光）
+
+    凡是涉及到进 erolabs 黑端的逻辑，用的模拟器设备都要打开平板模式
+    实现的效果是 erolabs 黑端就中间一条，如果用手机模式可能会有变化
     """
     TXN_NAME = "LoginToHomepage"
 
@@ -46,6 +50,102 @@ class LoginToHomepage(LegecloTransaction):
         except TemplateNotFound:
             logger.error(f"Transaction {self.TXN_NAME} end failed")
             return False
+
+    def _create_account(self) -> None:
+        """
+        创建账号
+        会抛出异常
+        """
+        # 识别 EROLABS 注册新账号
+        find, _pos = self.ctl.loop_find_template_no_exception(
+            template=images.NO_EROLABS_ACCOUNT,
+            interval=1,
+            timeout=60,
+        )
+        if not find:
+            raise TransactionRecoverError("Erolabs account register error, need reboot to solve")
+        time.sleep(2)
+        # 点击注册新账号
+        self.ctl.touch(_pos)
+        time.sleep(2)
+        # 输入账号密码
+        account = create_erolabs_account()
+        logger.info(f"Create account: {account}")
+        self.ctl.touch_pos(pos.EROLABS_REGISTER_EMAIL_INPUT)
+        time.sleep(1)
+        self.ctl.type_text(account.email)
+        time.sleep(1)
+        self.ctl.touch_pos(pos.EROLABS_REGISTER_PASSWORD_INPUT)
+        time.sleep(1)
+        self.ctl.type_text(account.password)
+        time.sleep(1)
+        self.ctl.touch_pos(pos.EROLABS_REGISTER_PASSWORD_INPUT_AGAIN)
+        time.sleep(1)
+        self.ctl.type_text(account.password)
+        time.sleep(1)
+        # 点击安全位置取消输入状态
+        self.ctl.touch_pos(pos.EROLABS_REGISTER_SAFE)
+        time.sleep(1)
+        # 下滑滚轮
+        self.ctl.scroll(
+            start_pos=pos.EROLABS_REGISTER_SCROLL_START,
+            end_pos=pos.EROLABS_REGISTER_SCROLL_END,
+            steps=50,
+        )
+
+        register_success: bool = False
+        # 滑动验证码
+        for _ in range(10):  # 避免死循环
+            image = self.ctl.capture_region(
+                top_left=pos.EROLABS_REGISTER_SLIDER_TOP_LEFT,
+                bottom_right=pos.EROLABS_REGISTER_SLIDER_BOTTOM_RIGHT,
+            )
+            x = process_erolabs_slider(image)
+            if not x:
+                # 检测不出来就拖到死，让它自动刷新
+                x = 300
+
+            # 写死在这里得了
+            # 这里没去检测那个箭头，直接记录了位置
+            # 不同页面在都拖到底的情况下箭头的位置都可能不一样
+            # 所以干脆就写在这里
+            start_pos = DevPos(
+                x=671,
+                y=496,
+                description="滑动验证码起始位置，箭头的中心",
+            )
+            end_pos = DevPos(
+                x=671 + x,
+                y=496,
+            )
+            self.ctl.scroll(
+                start_pos=start_pos,
+                end_pos=end_pos,
+                duration=1,
+                steps=300,
+            )
+            time.sleep(1)
+
+            # 检测是否有可以注册的按键
+            find, _pos = self.ctl.loop_find_template_no_exception(
+                template=images.EROLABS_CAN_REGISTER,
+                interval=1,
+                timeout=15,  # 有可能会卡
+            )
+            if find:
+                register_success = True
+                self.ctl.touch(_pos)
+                time.sleep(1)
+                # 会直接跳到账号登录界面
+                break
+
+        if not register_success:
+            raise TransactionRecoverError("Erolabs account register error, need reboot to solve")
+
+        # 登入逻辑
+
+
+
 
     def operate(self) -> None:
         # 点击 GAME START
