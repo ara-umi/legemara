@@ -91,10 +91,16 @@ pip install uv
 # 更新
 uv self update
 
-# 在根目录下创建环境，环境名称就是项目名称
-uv venv --python 3.11
-# 生成 pyproject.toml 和 .python-version
-uv init
+# 生成配置文件，会生成 toml 和 .python-version（不指定具体 python 版本就用你环境变量里的 python 版本，反正你可以手动改，如果要手动改 toml 里也需要改），如果没有 README 也会生成一个
+uv init . --python 3.x
+# 生成环境文件夹，这里也可以指定 python 版本，指定的和 .python-version 里面的不匹配就会有 warning，也可以不指定，就按 .python-version 来创建
+# 这一步就会创建 venv 文件夹并链接 python 解释器，链接到 anaconda 的都有可能，反正它到处找，可能会有链接的问题
+uv venv --python 3.x
+# 如果有需要 add
+# 之后同步
+uv sync
+# 如果 pycharm 导入解释器出问题，就多搞几次，如果 index 有问题就重启一下，反正很容易抽风
+
 # 安装并添加到配置里，本质上还是靠 PyPI 来装包
 uv add loguru
 # 移除
