@@ -124,6 +124,11 @@ from models.template import CharacterPortrait
     character_name="苏尔",
     score=25,
 )
+绿龙 = CharacterPortrait(
+    path="images/portrait/绿龙.png",
+    character_name="绿龙",
+    score=100,
+)
 
 if __name__ == "__main__":
     pass

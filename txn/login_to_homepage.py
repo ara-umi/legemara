@@ -5,13 +5,15 @@ import random
 import time
 
 from loguru import logger
-from models.pos import DevPos
+
 from exceptions import *
 from instance import images
 from instance import pos
+from models.pos import DevPos
 from txn.base import LegecloTransaction
 from utils.account import create_erolabs_account
 from utils.slider import process_erolabs_slider
+
 
 class LoginToHomepage(LegecloTransaction):
     """
@@ -144,9 +146,6 @@ class LoginToHomepage(LegecloTransaction):
 
         # 登入逻辑
 
-
-
-
     def operate(self) -> None:
         # 点击 GAME START
         self.ctl.touch_pos(pos.GAME_START)
@@ -173,12 +172,19 @@ class LoginToHomepage(LegecloTransaction):
             interval=1
         )
         time.sleep(3)
+        # 检测弹出输入邀请码（不确定是不是会常驻）
+        self.ctl.loop_find_template_no_exception(
+            template=images.INPUT_INVITE_CODE,
+            timeout=30,  # 可能需要花费一定时间
+        )
+        # 点击跳过邀请码
+        self.ctl.touch_pos(pos.SKIP_INVITE_CODE)
         # 检测弹出跳过新手教程提示
         self.ctl.loop_find_template_no_exception(
             template=images.IF_SKIP_BEGINNER,
             timeout=30,  # 可能需要花费一定时间
-        )  # 起名成功
-        time.sleep(1)
+        )
+        time.sleep(2)
         # 点击跳过新手教程
         self.ctl.touch_pos(pos.SKIP_BEGINNER)
         # 之后等待进入主页，逻辑交给 assert_end

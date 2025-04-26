@@ -27,6 +27,10 @@ NAME_RULE = DevTemplate(
     path="images/name_rule.png",
     description="传草取名规则",
 )
+INPUT_INVITE_CODE = DevTemplate(
+    path="images/input_invite_code.png",
+    description="传草输入邀请码",
+)
 IF_SKIP_BEGINNER = DevTemplate(
     path="images/if_skip_beginner.png",
     description="传草是否跳过新手引导",

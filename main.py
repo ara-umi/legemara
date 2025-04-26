@@ -18,7 +18,7 @@ from txn import (
     CollectTasks,
     InspectCharacters,
 )
-from txn.gacha_dc2 import GachaDC2
+from txn.gacha_25 import Gacha25
 
 airtest_logger = logging.getLogger("airtest")
 airtest_logger.setLevel(logging.DEBUG)
@@ -37,14 +37,10 @@ skip_beginner_guide_txn = SkipBeginnerGuide(controller)
 skip_stage_txn = SkipStage(controller)
 collect_gifts_txn = CollectGifts(controller)
 collect_tasks_txn = CollectTasks(controller)
-gacha_txn = GachaDC2(
-    controller,
-)
+gacha_txn = Gacha25(controller)
 inspect_characters_txn = InspectCharacters(
     controller,
     required_main_char=[
-        characters.联动武尊,
-
         characters.卑,
         characters.新米,
         characters.枪南丁,
@@ -62,18 +58,14 @@ inspect_characters_txn = InspectCharacters(
         characters.剑大师,
     ],
     required_sub_char=[
-        characters.联动乌列尔,
-
         characters.女仆,
         characters.苏尔,
     ],
     must_have_main_char=[
-        # characters.联动武尊,
     ],
     must_have_sub_char=[
-        # characters.联动乌列尔,
     ],
-    target_score=400,
+    target_score=300,
 )
 delete_account_txn = DeleteAccount(controller)
 
@@ -105,9 +97,9 @@ def marathon():
         logger.success(f"Marathon loop {loop} start")
         login_to_homepage_txn.execute()
         skip_beginner_guide_txn.execute()
-        skip_stage_txn.execute()
-        collect_gifts_txn.execute()
-        collect_tasks_txn.execute()
+        # skip_stage_txn.execute()
+        # collect_gifts_txn.execute()
+        # collect_tasks_txn.execute()
         gacha_txn.execute()
 
         success = inspect_characters_txn.execute()

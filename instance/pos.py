@@ -74,6 +74,11 @@ NAME_INPUT_OK = DevPos(
     y=600,
     description="输入玩家名确认"
 )
+SKIP_INVITE_CODE = DevPos(
+    x=700,
+    y=600,
+    description="跳过邀请码"
+)
 SKIP_BEGINNER = DevPos(
     x=674,
     y=593,
@@ -141,8 +146,8 @@ LEVEL_UP_OK = DevPos(
     description="强化后升级确认的OK"
 )
 HOMEPAGE_SAFE = DevPos(
-    x=1465,
-    y=458,
+    x=1540,
+    y=449,
     description="主页安全位置，公会按钮的上方，一般没东西，主要用来跳过公告"
 )
 HOMEPAGE_MENU = DevPos(
@@ -151,8 +156,8 @@ HOMEPAGE_MENU = DevPos(
     description="主页选单按钮"
 )
 MENU_DELETE_ACCOUNT = DevPos(
-    x=820,
-    y=693,
+    x=1232,
+    y=585,
     description="选单删除账号，带个垃圾桶的那个"
 )
 DELETE_ATTENTION_CONFIRM1 = DevPos(
