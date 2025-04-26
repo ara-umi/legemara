@@ -60,6 +60,7 @@ inspect_characters_txn = InspectCharacters(
     required_sub_char=[
         characters.女仆,
         characters.苏尔,
+        characters.绿龙,
     ],
     must_have_main_char=[
     ],
